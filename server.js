@@ -10,6 +10,7 @@ import errorHandler from "./middlewares/errorHandler.middleware.js";
 import productRouter from "./routes/product.route.js";
 import categoryRouter from "./routes/category.route.js";
 import "./models/index.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 const PORT = process.env.PORT || 5500;
@@ -18,11 +19,16 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "*",
+    origin: [
+      // "https://wellnex.grubdev.top",
+      "http://192.168.88.11:5173",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   }),
 );
+app.use(cookieParser());
 app.use("/api", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
