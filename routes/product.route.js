@@ -6,7 +6,10 @@ import {
   getProducts,
   updateProduct,
 } from "../controllers/product.controller.js";
+import { authGuard } from "../middlewares/authGuard.middleware.js";
 const productRouter = express.Router();
+
+productRouter.use(authGuard);
 
 productRouter.post("/", createProduct);
 productRouter.get("/", getProducts);

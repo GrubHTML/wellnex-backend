@@ -60,4 +60,23 @@
   - Category exixts
   - Product links to category
 
-### Day14: Refresh token added
+### OffDay: Refresh token added
+
+### Day14:
+
+- Make product name unique
+
+### Day16: Cart Integration
+
+- Goal:
+  - Store cart in database
+  - Fetch cart from backend
+  - Handle sync properly
+
+- Flow
+  - Cart database design
+  - Create cart APIs
+  - Auth protection
+  - Add product validation
+  - Frontend cart service
+  - Sync strategy

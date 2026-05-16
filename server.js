@@ -9,6 +9,7 @@ import userRouter from "./routes/user.route.js";
 import errorHandler from "./middlewares/errorHandler.middleware.js";
 import productRouter from "./routes/product.route.js";
 import categoryRouter from "./routes/category.route.js";
+import cartRouter from "./routes/cart.route.js";
 import "./models/index.js";
 import cookieParser from "cookie-parser";
 
@@ -32,15 +33,7 @@ app.use(cookieParser());
 app.use("/api", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
-
-// // error handleling
-// // 404
-// app.use((req, res, next) => {
-//   const error = new Error("url not found");
-//   error.status = 404;
-//   // const a = 404
-//   next(error);
-// });
+app.use("/api/carts", cartRouter);
 
 // Global error handling middleware
 app.use(errorHandler);
@@ -56,10 +49,6 @@ const dBConnection = async () => {
 };
 dBConnection();
 
-// server and api test
-// app.get("/", (req, res) => {
-//   res.send("Hello world");
-// });
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`server is running at http://192.168.88.11:${PORT}`);
 });

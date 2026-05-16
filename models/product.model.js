@@ -10,6 +10,7 @@ export const ProductModel = sequelize.define("product", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   price: {
     type: DataTypes.DECIMAL(10, 2),
