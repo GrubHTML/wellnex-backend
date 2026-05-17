@@ -25,7 +25,7 @@ const authGuard = (req, res, next) => {
       return res.status(401).json({ message: "Expired token by frn" });
     }
     const err = new Error("Invalid or expired token");
-    err.statusCode = 400;
+    err.statusCode = 401;
     return next(err);
   }
 };

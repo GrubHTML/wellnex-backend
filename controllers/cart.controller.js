@@ -42,7 +42,7 @@ const getCarts = async (req, res, next) => {
       where: { userId: id },
       include: [ProductModel],
     });
-    if (!cartItems) {
+    if (cartItems.length === 0) {
       const err = new Error("Nor cart items found!");
       err.statusCode = 404;
       return next(err);
@@ -60,7 +60,12 @@ const getCarts = async (req, res, next) => {
 const getCartById = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const cartItem = await CartModel.findByPk(id);
+    const cartItem = await CartModel.findOne({
+      where: {
+        id,
+        userId: req.id,
+      },
+    });
     if (!cartItem) {
       const err = new Error("Cart item not found!");
       err.statusCode = 404;
@@ -76,7 +81,12 @@ const updateCart = async (req, res, next) => {
   try {
     const id = req.params.id;
     const { productId, quantity } = req.body;
-    const cartItem = await CartModel.findByPk(id);
+    const cartItem = await CartModel.findOne({
+      where: {
+        id,
+        userId: req.id,
+      },
+    });
     if (!cartItem) {
       const err = new Error("Cart item not found!");
       err.statusCode = 404;
@@ -84,7 +94,7 @@ const updateCart = async (req, res, next) => {
     }
     await cartItem.update({
       productId: productId || cartItem.productId,
-      quantity: quantity || cartItem.quantity,
+      quantity: quantity ?? cartItem.quantity,
     });
     res
       .status(200)
@@ -97,7 +107,12 @@ const updateCart = async (req, res, next) => {
 const deleteCart = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const cartItem = await CartModel.findByPk(id);
+    const cartItem = await CartModel.findOne({
+      where: {
+        id,
+        userId: req.id,
+      },
+    });
     if (!cartItem) {
       const err = new Error("Cart item not found!");
       err.statusCode = 404;
