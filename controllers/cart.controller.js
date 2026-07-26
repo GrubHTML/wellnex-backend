@@ -43,7 +43,7 @@ const getCarts = async (req, res, next) => {
       include: [ProductModel],
     });
     if (cartItems.length === 0) {
-      const err = new Error("Nor cart items found!");
+      const err = new Error("No cart items found!");
       err.statusCode = 404;
       return next(err);
     }

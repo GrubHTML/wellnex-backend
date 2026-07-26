@@ -10,6 +10,7 @@ import errorHandler from "./middlewares/errorHandler.middleware.js";
 import productRouter from "./routes/product.route.js";
 import categoryRouter from "./routes/category.route.js";
 import cartRouter from "./routes/cart.route.js";
+import orderRouter from "./routes/order.route.js";
 import "./models/index.js";
 import cookieParser from "cookie-parser";
 
@@ -34,6 +35,7 @@ app.use("/api", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/carts", cartRouter);
+app.use("/api/orders", orderRouter);
 
 // Global error handling middleware
 app.use(errorHandler);

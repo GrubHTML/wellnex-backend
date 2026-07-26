@@ -80,3 +80,21 @@
   - Add product validation
   - Frontend cart service
   - Sync strategy
+
+### Day18: Order Backend
+
+- Goal:
+  - Real order system
+
+- Flow
+  - Understand the database design
+  - Create orderModel
+  - Create orderItemsModel
+  - Setup associations
+  - Create placeOrder controller
+  - Create order
+  - Create orderItems
+  - Clear cart
+  - Send response
+  - Create routes
+  - Test
