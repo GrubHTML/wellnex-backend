@@ -4,9 +4,14 @@ import { OrderModel } from "../models/order.model.js";
 import { OrderItemModel } from "../models/orderItem.model.js";
 import { ProductModel } from "../models/product.model.js";
 
-const placeOrder = async (req, res) => {
+const placeOrder = async (req, res, next) => {
   const userId = req.id;
   const { paymentMethod, shippingAddress, phone, notes } = req.body;
+  if (!paymentMethod || !shippingAddress || !phone) {
+    const err = new Error("All required fields are missing!");
+    err.statusCode = 400;
+    return next(err);
+  }
 
   try {
     // step 1: cart fetch kora with product price
@@ -68,12 +73,14 @@ const placeOrder = async (req, res) => {
 
     // ── Step 4: Success response ──
     res.status(201).json({
-      message: "Order সফলভাবে place হয়েছে!",
+      success: true,
+      message: "Order placed successfully",
       orderId: order.id,
+      order,
     });
   } catch (error) {
     console.error("Order place error:", error);
-    res.status(500).json({ message: "Order place করতে সমস্যা হয়েছে" });
+    next(error);
   }
 };
 
