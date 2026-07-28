@@ -32,7 +32,7 @@ CartModel.belongsTo(ProductModel, {
   foreignKey: "productId",
 });
 
-// User -> Order
+// User → Orders
 UserModel.hasMany(OrderModel, {
   foreignKey: "userId",
   onUpdate: "CASCADE",
@@ -41,7 +41,8 @@ UserModel.hasMany(OrderModel, {
 OrderModel.belongsTo(UserModel, {
   foreignKey: "userId",
 });
-// Order -> OrderItem
+
+// Order → OrderItems
 OrderModel.hasMany(OrderItemModel, {
   foreignKey: "orderId",
   onUpdate: "CASCADE",
@@ -50,11 +51,12 @@ OrderModel.hasMany(OrderItemModel, {
 OrderItemModel.belongsTo(OrderModel, {
   foreignKey: "orderId",
 });
-// Product → OrderItem
+
+// Product → OrderItems
 ProductModel.hasMany(OrderItemModel, {
   foreignKey: "productId",
   onUpdate: "CASCADE",
-  onDelete: "RESTRICT", // Product delete হলে পুরনো order যেন না মোছে
+  onDelete: "RESTRICT", //RESTRICT মানে — product delete করতে গেলে error দেবে যদি সেই product এর কোনো order থাকে। Order history নষ্ট হবে না।
 });
 OrderItemModel.belongsTo(ProductModel, {
   foreignKey: "productId",

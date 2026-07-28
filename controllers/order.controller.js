@@ -6,77 +6,82 @@ import { ProductModel } from "../models/product.model.js";
 
 const placeOrder = async (req, res, next) => {
   const userId = req.id;
-  const { paymentMethod, shippingAddress, phone, notes } = req.body;
-  if (!paymentMethod || !shippingAddress || !phone) {
+  const {
+    shippingName,
+    shippingPhone,
+    shippingEmail,
+    shippingAddress,
+    orderNotes,
+    paymentMethod,
+  } = req.body;
+
+  if (!shippingName || !paymentMethod || !shippingAddress || !shippingPhone) {
     const err = new Error("All required fields are missing!");
     err.statusCode = 400;
     return next(err);
   }
-
   try {
-    // step 1: cart fetch kora with product price
-    const cartItems = await CartModel.findAll({
-      where: { userId },
-      include: [{ model: ProductModel }],
-    });
-    if (cartItems.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Cart is empty, No order will be placed!" });
-    }
-    // step 2: Total calculate kora
-    const shippingCost = 120;
-    const subtotal = cartItems.reduce((sum, item) => {
-      return sum + item.quantity * parseFloat(item.product.price);
-    }, 0);
-    const total = subtotal + shippingCost;
+    // Managed transaction - only one try/catch, commit/rolback nei
+    const result = await sequelize.transaction(async (t) => {
+      // step 1- cart fetch kora with product price
+      const cartItems = await CartModel.findAll({
+        where: { userId },
+        include: [{ model: ProductModel }],
+        transaction: t,
+      });
+      if (cartItems.length === 0) {
+        throw new Error("Cart is empty"); // throw korle auto rollback
+      }
+      // step 2a: calculate subtotal
+      let subtotal = 0;
+      cartItems.forEach((item) => {
+        subtotal += parseFloat(item.product.price) * item.quantity;
+      });
+      // step 2b: calculate total
+      const shippingCost = 120.0;
+      const discount = 0.0;
+      const totalAmount = subtotal + shippingCost - discount;
 
-    // ── Step 3: Managed Transaction ──
-    // Managed মানে হলো — তুমি manually commit/rollback করবে না।
-    // যদি callback এর ভেতরে কোনো error throw হয়, Sequelize
-    // নিজেই rollback করবে। সব ঠিকঠাক হলে নিজেই commit করবে।
-
-    const order = await sequelize.transaction(async (t) => {
-      // step 3a: Order make
+      //step 3: order create
       const newOrder = await OrderModel.create(
         {
           userId,
-          paymentMethod,
+          shippingName,
+          shippingPhone,
+          shippingEmail,
           shippingAddress,
-          phone,
-          notes,
+          orderNotes,
+          paymentMethod,
           subtotal,
           shippingCost,
-          total,
-          status: "pending",
+          discount,
+          totalAmount,
         },
         { transaction: t },
       );
-      // ── Step 3b: OrderItems তৈরি করো (bulkCreate) ──
-      const orderItemsData = cartItems.map((item) => ({
+      const orderItemsArray = cartItems.map((item) => ({
         orderId: newOrder.id,
         productId: item.productId,
+        productName: item.product.name,
+        productPrice: item.product.price,
         quantity: item.quantity,
-        priceAtPurchase: item.product.price, // সেই মুহূর্তের price
+        totalPrice: parseFloat(item.product.price) * item.quantity,
       }));
 
-      await OrderItemModel.bulkCreate(orderItemsData, { transaction: t });
+      await OrderItemModel.bulkCreate(orderItemsArray, { transaction: t });
 
-      // ── Step 3c: Cart clear করো ──
       await CartModel.destroy({
         where: { userId },
         transaction: t,
       });
 
-      return newOrder; // transaction শেষে এটা return করো
+      return { orderId: newOrder.id, totalAmount }; // এই value বাইরে পাবে
     });
-
-    // ── Step 4: Success response ──
-    res.status(201).json({
-      success: true,
-      message: "Order placed successfully",
-      orderId: order.id,
-      order,
+    // এখানে কোনো error না হলে Sequelize auto commit করবে
+    return res.status(201).json({
+      message: "Order placed successfully!",
+      orderId: result.orderId,
+      totalAmount: result.totalAmount,
     });
   } catch (error) {
     console.error("Order place error:", error);
