@@ -89,4 +89,47 @@ const placeOrder = async (req, res, next) => {
   }
 };
 
-export default placeOrder;
+const getOrders = async (req, res, next) => {
+  try {
+    const orders = await OrderModel.findAll({
+      where: {
+        userId: req.id,
+      },
+      order: [["createdAt", "DESC"]],
+    });
+    return res.status(200).json({
+      success: true,
+      message: "All Orders List: ",
+      orders,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getOrdersById = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const order = await OrderModel.findByPk(id, {
+      include: [
+        {
+          model: OrderItemModel,
+        },
+      ],
+    });
+    if (!order) {
+      const err = new Error("Order not found!");
+      err.statusCode = 404;
+      return next(err);
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Your Order: ",
+      order,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { placeOrder, getOrders, getOrdersById };

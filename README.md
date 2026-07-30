@@ -98,3 +98,16 @@
   - Send response
   - Create routes
   - Test
+
+### Day20: Order History
+
+- Goal: User should be able to
+  - View all their orders
+  - Click an order
+  - View order details
+
+- Flow
+  - Backend API (GET /orders)
+  - Order details API
+  - Frontend service (getOrders(), getOrdersById(id))
+  - Testing
